@@ -1,0 +1,2 @@
+datetime,city,temperature,humidity,pressure,wind_speed,aqi,dominant_pollutant,hour,day,month,day_of_week,is_weekend,aqi_category,temp_humidity_index,aqi_change
+2026-07-18 22:51:51,Lahore,36.99,33,1001,3.58,34,pm25,22,18,7,Saturday,True,Good,36.192,0.0

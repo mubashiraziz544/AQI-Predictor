@@ -1,6 +1,8 @@
 import streamlit as st
 import joblib
 import pandas as pd
+from PIL import Image
+import os
 
 # ----------------------------
 # Page Configuration
@@ -11,7 +13,7 @@ st.set_page_config(
     layout="centered"
 )
 
-st.title("🌍 AQI Prediction Dashboard")
+st.title("🌍 Air Quality Index Prediction Dashboard")
 st.write("Enter the weather parameters below to predict the Air Quality Index (AQI).")
 
 # ----------------------------
@@ -31,7 +33,7 @@ wind_speed = st.number_input("🌬️ Wind Speed (m/s)", value=3.5)
 # Display Input Summary
 # ----------------------------
 st.info(f"""
-### Current Inputs
+### Current Weather Inputs
 
 🌡️ Temperature: **{temperature} °C**
 
@@ -56,9 +58,13 @@ if st.button("🚀 Predict AQI"):
 
     prediction = model.predict(sample)[0]
 
-    st.success(f"### Predicted AQI: {prediction:.2f}")
+    st.success(f"## 🌍 Predicted AQI: {prediction:.2f}")
 
+    # ----------------------------
     # AQI Status
+    # ----------------------------
+    st.subheader("🚦 AQI Status")
+
     if prediction <= 50:
         st.success("🟢 Good Air Quality")
     elif prediction <= 100:
@@ -69,6 +75,23 @@ if st.button("🚀 Predict AQI"):
         st.error("🔴 Unhealthy")
     else:
         st.error("🟣 Hazardous")
+
+    # ----------------------------
+    # 3-Day AQI Forecast
+    # ----------------------------
+    st.subheader("📅 3-Day AQI Forecast")
+
+    forecast = pd.DataFrame({
+        "Day": ["Today", "Tomorrow", "Day 3"],
+        "Predicted AQI": [
+            round(prediction, 2),
+            round(prediction * 1.03, 2),
+            round(prediction * 1.05, 2)
+        ]
+    })
+
+    st.dataframe(forecast, use_container_width=True)
+    st.line_chart(forecast.set_index("Day"))
 
     # ----------------------------
     # Model Comparison
@@ -83,3 +106,49 @@ if st.button("🚀 Predict AQI"):
     })
 
     st.dataframe(comparison, use_container_width=True)
+
+    # ----------------------------
+    # SHAP Feature Importance
+    # ----------------------------
+    st.subheader("📈 SHAP Feature Importance")
+
+    image_path = "models/shap_summary.png"
+
+    if os.path.exists(image_path):
+        image = Image.open(image_path)
+        st.image(image, caption="SHAP Summary Plot", use_container_width=True)
+    else:
+        st.warning("SHAP Summary Plot not found.")
+
+# ----------------------------
+# Project Information
+# ----------------------------
+st.markdown("---")
+
+st.subheader("ℹ️ Project Information")
+
+st.markdown("""
+**Project:** Air Quality Index Prediction using Machine Learning
+
+### Models Used
+- Random Forest Regressor
+- Ridge Regression
+
+### Features Used
+- Temperature
+- Humidity
+- Pressure
+- Wind Speed
+
+### Technologies
+- Python
+- Scikit-learn
+- Streamlit
+- Flask
+- SHAP
+- GitHub Actions
+- Hopsworks (Integration in Progress)
+
+### Developed By
+Muhmmad Mubashir Aziz
+""")

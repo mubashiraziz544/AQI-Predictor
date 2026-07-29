@@ -1,37 +1,47 @@
-name: Python CI
+name: AQI Pipeline
 
 on:
   push:
     branches:
       - main
 
-  pull_request:
-    branches:
-      - main
+  schedule:
+    - cron: '0 * * * *'   # Every hour
+
+  workflow_dispatch:
 
 jobs:
-  build:
+  pipeline:
 
     runs-on: ubuntu-latest
 
     steps:
 
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Check Python Version
-      run: python --version
+      - name: Run Feature Pipeline
+        run: |
+          python feature_pipeline/fetch_data.py
 
-    - name: Verify Project
-      run: |
-        python -m py_compile main.py
+      - name: Run Backfill Pipeline
+        run: |
+          python feature_pipeline/backfill_data.py
+
+      - name: Train Model
+        run: |
+          python training_pipeline/train_model.py
+
+      - name: Generate SHAP
+        run: |
+          python training_pipeline/explain_model.py

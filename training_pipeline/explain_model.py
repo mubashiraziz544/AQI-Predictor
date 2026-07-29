@@ -21,4 +21,4 @@ shap.summary_plot(shap_values, X, show=False)
 
 plt.savefig("models/shap_summary.png", dpi=300, bbox_inches="tight")
 
-print("✅ SHAP summary plot saved!")python training_pipeline/explain_model.py
+print("✅ SHAP summary plot saved!")
